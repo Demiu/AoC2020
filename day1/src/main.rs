@@ -15,13 +15,26 @@ fn main() {
             }
         }
 
-        'search: for i in 0 .. numbers.len() {
-            for j in i .. numbers.len() {
+        'search_2: for i in 0 .. numbers.len() {
+            for j in (i+1) .. numbers.len() {
                 let sum = numbers[i] + numbers[j];
                 if sum == 2020 {
                     let mul = numbers[i] * numbers[j];
                     println!("{}", mul);
-                    break 'search;
+                    break 'search_2;
+                }
+            }
+        }
+
+        'search_3: for i in 0 .. numbers.len() {
+            for j in (i+1) .. numbers.len() {
+                for k in (j+1) .. numbers.len() {
+                    let sum = numbers[i] + numbers[j] + numbers[k];
+                    if sum == 2020 {
+                        let mul = numbers[i] * numbers[j] * numbers[k];
+                        println!("{}", mul);
+                        break 'search_3;
+                    }
                 }
             }
         }
