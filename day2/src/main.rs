@@ -4,11 +4,13 @@ use std::path::Path;
 
 fn main() {
     if let Ok(lines) = read_lines("./input.txt") {
-        let mut valid_count: u32 = 0;
+        let mut valid_count1: u32 = 0;
+        let mut valid_count2: u32 = 0;
 
         // Consumes the iterator, returns an (Optional) String
         for line in lines {
             if let Ok(line_str) = line {
+                // part 1
                 let parts: Vec<&str> = line_str.split(' ').collect();
                 let bounds: Vec<&str> = parts[0].split('-').collect();
                 let lower_bound = bounds[0].parse::<u32>().unwrap();
@@ -17,12 +19,20 @@ fn main() {
                 let password = parts[2];
                 let char_count = password.matches(character).count() as u32;
                 if char_count >= lower_bound && char_count <= upper_bound {
-                    valid_count += 1;
+                    valid_count1 += 1;
+                }
+
+                // part 2
+                let lower_matches = password.chars().nth(lower_bound as usize - 1).unwrap() == character;
+                let upper_matches = password.chars().nth(upper_bound as usize - 1).unwrap() == character;
+                if lower_matches != upper_matches {
+                    valid_count2 += 1;
                 }
             }
         }
 
-        println!("Found {} valid passwords.", valid_count);
+        println!("Found {} valid passwords for part 1\nFound {} valid passwords for part 2"
+                , valid_count1, valid_count2);
     }
 }
 
