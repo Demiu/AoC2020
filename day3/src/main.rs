@@ -3,23 +3,37 @@ use std::io::{self, BufRead};
 use std::path::Path;
 
 fn main() {
-    if let Ok(mut lines) = read_lines("./input.txt") {
-        let mut trees_hit: u32 = 0;
-        let mut horizontal_pos: usize = 0;
-        let horizontal_change: usize = 3;
-        let line_width = lines.next().unwrap().unwrap().chars().count();
+    if let Ok(lines) = read_lines("./input.txt") {
+        let lines_vec: Vec<_> = lines.collect::<Result<_, _>>().unwrap();
+        let line_width = lines_vec[0].len();
 
-        while let Some(Ok(line)) = lines.next() {
-            horizontal_pos = horizontal_pos + horizontal_change;
-            horizontal_pos -= if horizontal_pos >= line_width { line_width } else { 0 };
+        // part 1
+        let hits_3_1 = slope_trees(&lines_vec, line_width, 3, 1);
+        println!("Hit {} trees on the 3 right, 1 down path.", hits_3_1);
 
-            if line.chars().nth(horizontal_pos).unwrap() == '#' {
-                trees_hit += 1;
-            }
+        // part 2
+        let hits_1_1 = slope_trees(&lines_vec, line_width, 1, 1);
+        let hits_5_1 = slope_trees(&lines_vec, line_width, 5, 1);
+        let hits_7_1 = slope_trees(&lines_vec, line_width, 7, 1);
+        let hits_1_2 = slope_trees(&lines_vec, line_width, 1, 2);
+        let hits = hits_1_1 * hits_3_1 * hits_5_1 * hits_7_1 * hits_1_2;
+        println!("The product of tree hits for all tested slopes is {}", hits);
+    }
+}
+
+fn slope_trees(lines: &Vec<String>, line_width: usize, right: usize, down: usize) -> u32 {
+    let mut trees_hit: u32 = 0;
+    let mut horizontal_pos: usize = right;
+
+    for line in lines.iter().skip(down).step_by(down) {
+        if line.chars().nth(horizontal_pos).unwrap() == '#' {
+            trees_hit += 1;
         }
 
-        println!("Hit {} trees on the path.", trees_hit);
+        horizontal_pos = horizontal_pos + right;
+        horizontal_pos -= if horizontal_pos >= line_width { line_width } else { 0 };
     }
+    return trees_hit;
 }
 
 // The output is wrapped in a Result to allow matching on errors
