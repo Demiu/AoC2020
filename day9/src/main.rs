@@ -52,7 +52,7 @@ fn main() {
 
 fn can_two_elems_sum(deque: &VecDeque<u64>, sum: u64) -> bool {
     for i in 0..deque.len() {
-        for j in 0..deque.len() {
+        for j in i..deque.len() {
             if deque[i] + deque[j] == sum { return true; } 
         }
     }
