@@ -27,6 +27,27 @@ fn main() {
     }
 
     println!("Answer to part 1: {}", p1_answer);
+
+    last_numbers.clear();
+    let mut it = numbers.iter();
+    let mut sum = 0;
+    while let Some(num) = it.next() {
+        sum += num;
+        last_numbers.push_back(*num);
+        while sum > p1_answer {
+            if let Some(popped) = last_numbers.pop_front() {
+                sum -= popped;
+            } else {
+                break;
+            }
+        }
+        if sum == p1_answer {
+            break;
+        }
+    }
+
+    let p2_answer = last_numbers.iter().max().unwrap() + last_numbers.iter().min().unwrap();
+    println!("Answer to part 2: {}", p2_answer);
 }
 
 fn can_two_elems_sum(deque: &VecDeque<u64>, sum: u64) -> bool {
