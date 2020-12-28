@@ -30,14 +30,24 @@ fn main() {
     }
 
     let mut buffer1 = layout.clone();
-    let mut buffer2 = layout;
-    while step(&buffer1, &mut buffer2) != 0 { 
+    let mut buffer2 = layout.clone();
+    while step_p1(&buffer1, &mut buffer2) != 0 { 
         let swap = buffer1;
         buffer1 = buffer2;
         buffer2 = swap;
     }
 
     println!("Part 1 answer: {}", count_occupied(&buffer2));
+
+    let mut buffer1 = layout.clone();
+    let mut buffer2 = layout.clone();
+    while step_p2(&buffer1, &mut buffer2) != 0 { 
+        let swap = buffer1;
+        buffer1 = buffer2;
+        buffer2 = swap;
+    }
+    
+    println!("Part 2 answer: {}", count_occupied(&buffer2));
 }
 
 #[allow(dead_code)]
@@ -55,14 +65,14 @@ fn print_layout(l: &Vec<Vec<Seat>>) -> () {
     }
 }
 
-fn step(i: &Vec<Vec<Seat>>, o: &mut Vec<Vec<Seat>>) -> u32 {
+fn step_p1(i: &Vec<Vec<Seat>>, o: &mut Vec<Vec<Seat>>) -> u32 {
     let mut changed = 0;
     for y in 0..i.len() {
         for x in 0..i[y].len() {
             match i[y][x] {
                 Seat::Floor => (),
                 Seat::Empty => {
-                    if get_neighbouring_occupied_count(i, x, y) == 0 {
+                    if get_neighbouring_occupied_count_p1(i, x, y) == 0 {
                         o[y][x] = Seat::Occupied;
                         changed += 1;
                     } else {
@@ -70,7 +80,7 @@ fn step(i: &Vec<Vec<Seat>>, o: &mut Vec<Vec<Seat>>) -> u32 {
                     }
                 },
                 Seat::Occupied => {
-                    if get_neighbouring_occupied_count(i, x, y) > 3 {
+                    if get_neighbouring_occupied_count_p1(i, x, y) >= 4 {
                         o[y][x] = Seat::Empty;
                         changed += 1;
                     } else {
@@ -83,7 +93,35 @@ fn step(i: &Vec<Vec<Seat>>, o: &mut Vec<Vec<Seat>>) -> u32 {
     return changed;
 }
 
-fn get_neighbouring_occupied_count(l: &Vec<Vec<Seat>>, x: usize, y: usize) -> u32 {
+fn step_p2(i: &Vec<Vec<Seat>>, o: &mut Vec<Vec<Seat>>) -> u32 {
+    let mut changed = 0;
+    for y in 0..i.len() {
+        for x in 0..i[y].len() {
+            match i[y][x] {
+                Seat::Floor => (),
+                Seat::Empty => {
+                    if get_neighbouring_occupied_count_p2(i, x, y) == 0 {
+                        o[y][x] = Seat::Occupied;
+                        changed += 1;
+                    } else {
+                        o[y][x] = Seat::Empty;
+                    }
+                },
+                Seat::Occupied => {
+                    if get_neighbouring_occupied_count_p2(i, x, y) >= 5 {
+                        o[y][x] = Seat::Empty;
+                        changed += 1;
+                    } else {
+                        o[y][x] = Seat::Occupied;
+                    }
+                }
+            }
+        }
+    }
+    return changed;
+}
+
+fn get_neighbouring_occupied_count_p1(l: &Vec<Vec<Seat>>, x: usize, y: usize) -> u32 {
     let mut occupied = 0;
     let left = x > 0;
     let right = x + 1 < l[y].len();
@@ -115,6 +153,165 @@ fn get_neighbouring_occupied_count(l: &Vec<Vec<Seat>>, x: usize, y: usize) -> u3
     }
     return occupied;
 }
+
+fn get_neighbouring_occupied_count_p2(l: &Vec<Vec<Seat>>, x: usize, y: usize) -> u32 {
+    let mut occupied = 0;
+
+    if x > 0 {
+        // left top
+        if y > 0 {
+            let mut trace_x = x-1;
+            let mut trace_y = y-1;
+            loop {
+                match l[trace_y][trace_x] {
+                    Seat::Floor => (),
+                    Seat::Empty => break,
+                    Seat::Occupied => {
+                        occupied += 1;
+                        break;
+                    }
+                }
+                if trace_x == 0 || trace_y == 0 {
+                    break;
+                }
+                trace_x -= 1;
+                trace_y -= 1;
+            }
+        }
+        // left bottom
+        if y + 1 < l.len() {
+            let mut trace_x = x-1;
+            let mut trace_y = y+1;
+            loop {
+                match l[trace_y][trace_x] {
+                    Seat::Floor => (),
+                    Seat::Empty => break,
+                    Seat::Occupied => {
+                        occupied += 1;
+                        break;
+                    }
+                }
+                if trace_x == 0 || (trace_y + 1 == l.len()) {
+                    break;
+                }
+                trace_x -= 1;
+                trace_y += 1;
+            }
+        }
+        // left
+        let mut trace_x = x-1;
+        loop {
+            match l[y][trace_x] {
+                Seat::Floor => (),
+                Seat::Empty => break,
+                Seat::Occupied => {
+                    occupied += 1;
+                    break;
+                }
+            }
+            if trace_x == 0 {
+                break;
+            }
+            trace_x -= 1;
+        }
+    }
+    if x + 1 < l[y].len() {
+        // right top
+        if y > 0 {
+            let mut trace_x = x+1;
+            let mut trace_y = y-1;
+            loop {
+                match l[trace_y][trace_x] {
+                    Seat::Floor => (),
+                    Seat::Empty => break,
+                    Seat::Occupied => {
+                        occupied += 1;
+                        break;
+                    }
+                }
+                if (trace_x + 1 == l[trace_y].len()) || trace_y == 0 {
+                    break;
+                }
+                trace_x += 1;
+                trace_y -= 1;
+            }
+        }
+        // right bottom
+        if y + 1 < l.len() {
+            let mut trace_x = x+1;
+            let mut trace_y = y+1;
+            loop {
+                match l[trace_y][trace_x] {
+                    Seat::Floor => (),
+                    Seat::Empty => break,
+                    Seat::Occupied => {
+                        occupied += 1;
+                        break;
+                    }
+                }
+                if (trace_x + 1 == l[trace_y].len()) || (trace_y + 1 == l.len()) {
+                    break;
+                }
+                trace_x += 1;
+                trace_y += 1;
+            }
+        }
+        // right
+        let mut trace_x = x+1;
+        loop {
+            match l[y][trace_x] {
+                Seat::Floor => (),
+                Seat::Empty => break,
+                Seat::Occupied => {
+                    occupied += 1;
+                    break;
+                }
+            }
+            if trace_x + 1 == l[y].len() {
+                break;
+            }
+            trace_x += 1;
+        }
+    }
+    // top
+    if y > 0 {
+        let mut trace_y = y-1;
+        loop {
+            match l[trace_y][x] {
+                Seat::Floor => (),
+                Seat::Empty => break,
+                Seat::Occupied => {
+                    occupied += 1;
+                    break;
+                }
+            }
+            if trace_y == 0 {
+                break;
+            }
+            trace_y -= 1;
+        }
+    }
+    // bottom
+    if y + 1 < l.len() {
+        let mut trace_y = y+1;
+        loop {
+            match l[trace_y][x] {
+                Seat::Floor => (),
+                Seat::Empty => break,
+                Seat::Occupied => {
+                    occupied += 1;
+                    break;
+                }
+            }
+            if trace_y + 1 == l.len() {
+                break;
+            }
+            trace_y += 1;
+        }
+    }
+
+    return occupied;
+} 
 
 fn count_occupied(l: &Vec<Vec<Seat>>) -> u32 {
     let mut occupied = 0;
