@@ -9,7 +9,7 @@ fn main() {
         .collect::<Result<_, _>>()
         .expect("Couldn't collect lines into a vec");
     
-    // simplified function; A is override, B is override value, C is input:
+    // already simplified function; A is override, B is override value, C is input:
     // out = (A and B) or (!A and C)
     let mut mask_override: u64 = 0; // if bit positive mask_override overrides value
     let mut mask_override_val: u64 = 0;
