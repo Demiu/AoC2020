@@ -9,7 +9,7 @@ fn main() {
         .expect("Couldn't read input to string");
 
     let numbers: Vec<u32> = file_str
-        .lines()
+        .lines() // the input.txt file has a trailing newline
         .next()
         .expect("Couldn't extract first line from file")
         .split(',')
@@ -24,17 +24,30 @@ fn main() {
     }
 
     let starting_turn = numbers.len();
-    let mut last_number = *numbers.last().unwrap();
+    let mut next_number = *numbers.last().unwrap();
     for turn in starting_turn..2020 {
-        match number_memory.insert(last_number, turn as u32) {
+        match number_memory.insert(next_number, turn as u32) {
             Some(last_seen) => {
-                last_number = turn as u32 - last_seen;
+                next_number = turn as u32 - last_seen;
             },
             None => {
-                last_number = 0;
+                next_number = 0;
             }
         }
     }
 
-    println!("Number on turn 2020: {}", last_number);
+    println!("Number on turn 2020: {}", next_number);
+
+    for turn in 2020..30000000 {
+        match number_memory.insert(next_number, turn as u32) {
+            Some(last_seen) => {
+                next_number = turn as u32 - last_seen;
+            },
+            None => {
+                next_number = 0;
+            }
+        }
+    }
+    
+    println!("Number on turn 30000000: {}", next_number);
 }
